@@ -11,9 +11,9 @@ export default function GallerySection() {
 
   const galleryCategories = [
     { id: "exterior", name: "Exterior Views", count: 12 },
-    { id: "interior", name: "Interior Design", count: 15 },
-    { id: "amenities", name: "Amenities", count: 8 },
-    { id: "location", name: "Location", count: 6 },
+    // { id: "interior", name: "Interior Design", count: 15 },
+    // { id: "amenities", name: "Amenities", count: 8 },
+    // { id: "location", name: "Location", count: 6 },
   ]
 
   const galleryImages = {

@@ -1,10 +1,12 @@
 "use client"
-
 import { Button } from "@/components/ui/button"
+import type React from "react"
+
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import { useToast } from "@/hooks/use-toast"
 import {
   Phone,
   Play,
@@ -33,10 +35,11 @@ import {
   Square,
   Car,
   Quote,
-  Navigation,
   Download,
+  Loader2,
 } from "lucide-react"
 import { useState } from "react"
+import axios from "axios"
 import GallerySection from "./gallery-section"
 import FAQSection from "./faq-section"
 import EnhancedPricingSection from "./enhanced-pricing"
@@ -45,6 +48,91 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeFloorPlan, setActiveFloorPlan] = useState(0)
   const [expandedFaq, setExpandedFaq] = useState(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { toast } = useToast()
+
+  // Form state
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    visitDate: "",
+    requirements: "",
+  })
+
+  // Handle form input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
+
+  // Handle form submission
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL 
+
+      const response = await axios.post(
+        `${backendUrl}/api/form/submit`,
+        {
+          ...formData,
+          timestamp: new Date().toISOString(),
+          source: "landing-page",
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          timeout: 10000, // 10 second timeout
+        },
+      )
+
+      if (response.status === 200 || response.status === 201) {
+        toast({
+          title: "Success!",
+          description: "Your tour request has been submitted successfully. We'll contact you soon!",
+          duration: 5000,
+        })
+
+        // Reset form
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          phone: "",
+          visitDate: "",
+          requirements: "",
+        })
+      }
+    } catch (error) {
+      console.error("Form submission error:", error)
+
+      let errorMessage = "Something went wrong. Please try again or call us directly."
+
+      if (axios.isAxiosError(error)) {
+        if (error.code === "ECONNABORTED") {
+          errorMessage = "Request timeout. Please check your connection and try again."
+        } else if (error.response?.status === 400) {
+          errorMessage = "Please check your information and try again."
+        } 
+      }
+
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+        duration: 5000,
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -64,7 +152,6 @@ export default function LandingPage() {
                 <div className="text-xs text-slate-500 font-medium tracking-widest -mt-1">SUNTERRA</div>
               </div>
             </div>
-
             <nav className="hidden lg:flex items-center space-x-8 xl:space-x-10">
               {[
                 { name: "Overview", href: "#overview" },
@@ -86,7 +173,6 @@ export default function LandingPage() {
                 </a>
               ))}
             </nav>
-
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="hidden sm:flex items-center space-x-2 lg:space-x-3 bg-slate-50 px-3 lg:px-5 py-2 lg:py-3 rounded-xl lg:rounded-2xl border border-slate-200">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -106,7 +192,6 @@ export default function LandingPage() {
               </button>
             </div>
           </div>
-
           {/* Enhanced Mobile Menu */}
           {mobileMenuOpen && (
             <div className="lg:hidden mt-4 pb-4 border-t border-slate-200">
@@ -170,7 +255,6 @@ export default function LandingPage() {
                   Experience premium villa living with zero electricity bills. 58 exquisitely crafted 4BHK villas
                   powered entirely by solar energy in Bangalore's most sought-after location.
                 </p>
-
                 <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-6">
                   {[
                     { number: "58", label: "Premium Villas", icon: Home, color: "emerald" },
@@ -194,7 +278,6 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-
                 <div className="flex flex-col gap-4 pt-4 sm:pt-6">
                   <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
                     <Button
@@ -224,7 +307,6 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-
             <div className="lg:col-span-5 mt-8 lg:mt-0">
               <div className="relative">
                 <div className="aspect-[4/5] bg-gradient-to-br from-slate-100 via-white to-slate-100 rounded-2xl sm:rounded-3xl lg:rounded-[3rem] overflow-hidden shadow-2xl border border-white/50">
@@ -285,7 +367,6 @@ export default function LandingPage() {
               the highest standards of luxury living.
             </p>
           </div>
-
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="space-y-6 sm:space-y-8">
               <div className="grid grid-cols-3 gap-3 sm:gap-4">
@@ -308,7 +389,6 @@ export default function LandingPage() {
                   </button>
                 ))}
               </div>
-
               <Card className="p-6 sm:p-8 lg:p-10 bg-white shadow-2xl border-0 rounded-2xl sm:rounded-3xl">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
                   {[
@@ -327,7 +407,6 @@ export default function LandingPage() {
                   ))}
                 </div>
               </Card>
-
               <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-indigo-100">
                 <h3 className="font-bold text-xl sm:text-2xl text-slate-900 mb-4 sm:mb-6">Premium Inclusions</h3>
                 <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
@@ -347,14 +426,9 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-
             <div className="relative">
               <div className="aspect-square bg-white rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-slate-200">
-                <img
-                  src="/image.png?height=600&width=600"
-                  alt="Floor Plan"
-                  className="w-full h-full object-cover"
-                />
+                <img src="/image.png?height=600&width=600" alt="Floor Plan" className="w-full h-full object-cover" />
               </div>
               <div className="absolute top-4 sm:top-6 right-4 sm:right-6 bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl">
                 <div className="text-center">
@@ -390,7 +464,6 @@ export default function LandingPage() {
               living experience to unprecedented heights.
             </p>
           </div>
-
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
             {[
               {
@@ -504,7 +577,6 @@ export default function LandingPage() {
               Discover why families choose NYRA SUNTERRA as their dream home destination
             </p>
           </div>
-
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
             {[
               {
@@ -551,18 +623,15 @@ export default function LandingPage() {
                       <p className="text-sm sm:text-base text-slate-600">{testimonial.role}</p>
                     </div>
                   </div>
-
                   <div className="flex items-center space-x-1 mb-4 sm:mb-6">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <Star key={i} className="h-4 w-4 sm:h-5 sm:w-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-
                   <Quote className="h-8 w-8 sm:h-10 sm:w-10 text-slate-300 mb-4 sm:mb-6" />
                   <p className="text-slate-700 leading-relaxed mb-6 sm:mb-8 text-sm sm:text-base font-light italic">
                     "{testimonial.testimonial}"
                   </p>
-
                   <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-4 sm:p-6 rounded-2xl border border-emerald-100">
                     <div className="flex items-center space-x-2">
                       <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-600 flex-shrink-0" />
@@ -596,7 +665,6 @@ export default function LandingPage() {
               convenient, setting new standards for premium living.
             </p>
           </div>
-
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {[
               {
@@ -705,45 +773,23 @@ export default function LandingPage() {
               without compromise
             </p>
           </div>
-
           {/* Interactive Map Section */}
-         <div className="mb-16 sm:mb-20 lg:mb-24">
-  <Card className="overflow-hidden border-0 shadow-2xl rounded-2xl sm:rounded-3xl">
-    <div className="aspect-video sm:aspect-[21/9] bg-gradient-to-br from-emerald-100 via-white to-green-100 relative">
-      <iframe
-        src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d7395.70200170143!2d77.778238!3d12.821171!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae73582de78713%3A0x3081835771771805!2sNyra%20Sunterra!5e1!3m2!1sen!2sin!4v1751714705778!5m2!1sen!2sin"
-        width="100%"
-        height="100%"
-        style={{ border: 0 }}
-        allowFullScreen
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-        className="rounded-2xl sm:rounded-3xl"
-      ></iframe>
-
-      {/* <div className="absolute top-4 sm:top-6 left-4 sm:left-6 bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 sm:p-3 bg-emerald-100 rounded-xl sm:rounded-2xl">
-            <MapPin className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
+          <div className="mb-16 sm:mb-20 lg:mb-24">
+            <Card className="overflow-hidden border-0 shadow-2xl rounded-2xl sm:rounded-3xl">
+              <div className="aspect-video sm:aspect-[21/9] bg-gradient-to-br from-emerald-100 via-white to-green-100 relative">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d7395.70200170143!2d77.778238!3d12.821171!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae73582de78713%3A0x3081835771771805!2sNyra%20Sunterra!5e1!3m2!1sen!2sin!4v1751714705778!5m2!1sen!2sin"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="rounded-2xl sm:rounded-3xl"
+                ></iframe>
+              </div>
+            </Card>
           </div>
-          <div>
-            <div className="font-bold text-base sm:text-lg text-slate-900">NYRA SUNTERRA</div>
-            <div className="text-xs sm:text-sm text-slate-600">Sarjapur-Attibele Road</div>
-          </div>
-        </div>
-      </div> */}
-
-      {/* <div className="absolute bottom-4 sm:bottom-6 right-4 sm:right-6 bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl">
-        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-semibold">
-          <Navigation className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-          Get Directions
-        </Button>
-      </div> */}
-    </div>
-  </Card>
-</div>
-
-
           <div className="grid lg:grid-cols-2 gap-12 sm:gap-16 items-center">
             <div className="space-y-8 sm:space-y-10">
               {[
@@ -815,7 +861,6 @@ export default function LandingPage() {
                 </Card>
               ))}
             </div>
-
             <div className="relative">
               <div className="aspect-square bg-gradient-to-br from-emerald-100 via-white to-green-100 rounded-2xl sm:rounded-3xl lg:rounded-[3rem] overflow-hidden shadow-2xl border border-white/50">
                 <img
@@ -861,7 +906,6 @@ export default function LandingPage() {
               Schedule a personalized site visit and experience luxury living firsthand with our expert consultants
             </p>
           </div>
-
           <div className="grid lg:grid-cols-2 gap-12 sm:gap-16 lg:gap-20">
             <div className="space-y-8 sm:space-y-10 lg:space-y-12">
               <div className="space-y-8 sm:space-y-10">
@@ -918,7 +962,6 @@ export default function LandingPage() {
                   </div>
                 ))}
               </div>
-
               <Card className="p-6 sm:p-8 lg:p-10 bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200/50 rounded-2xl sm:rounded-3xl shadow-xl">
                 <div className="text-center">
                   <h3 className="font-bold text-lg sm:text-xl mb-3 sm:mb-4 text-slate-900">RERA Registration</h3>
@@ -933,27 +976,42 @@ export default function LandingPage() {
                 </div>
               </Card>
             </div>
-
             <Card className="p-6 sm:p-8 lg:p-12 shadow-2xl border-0 bg-white rounded-2xl sm:rounded-3xl">
               <CardContent className="p-0">
                 <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-8 sm:mb-10 tracking-tight">
                   Schedule Your Private Tour
                 </h3>
-                <form className="space-y-6 sm:space-y-8">
+                <form onSubmit={handleFormSubmit} className="space-y-6 sm:space-y-8">
                   <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2 sm:mb-3">First Name</label>
-                      <Input className="h-12 sm:h-14 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl sm:rounded-2xl text-base sm:text-lg" />
+                      <Input
+                        name="firstName"
+                        value={formData.firstName}
+                        onChange={handleInputChange}
+                        required
+                        className="h-12 sm:h-14 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl sm:rounded-2xl text-base sm:text-lg"
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2 sm:mb-3">Last Name</label>
-                      <Input className="h-12 sm:h-14 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl sm:rounded-2xl text-base sm:text-lg" />
+                      <Input
+                        name="lastName"
+                        value={formData.lastName}
+                        onChange={handleInputChange}
+                        required
+                        className="h-12 sm:h-14 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl sm:rounded-2xl text-base sm:text-lg"
+                      />
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2 sm:mb-3">Email Address</label>
                     <Input
                       type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
                       className="h-12 sm:h-14 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl sm:rounded-2xl text-base sm:text-lg"
                     />
                   </div>
@@ -961,6 +1019,10 @@ export default function LandingPage() {
                     <label className="block text-sm font-semibold text-slate-700 mb-2 sm:mb-3">Phone Number</label>
                     <Input
                       type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      required
                       className="h-12 sm:h-14 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl sm:rounded-2xl text-base sm:text-lg"
                     />
                   </div>
@@ -970,6 +1032,9 @@ export default function LandingPage() {
                     </label>
                     <Input
                       type="date"
+                      name="visitDate"
+                      value={formData.visitDate}
+                      onChange={handleInputChange}
                       className="h-12 sm:h-14 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl sm:rounded-2xl text-base sm:text-lg"
                     />
                   </div>
@@ -979,13 +1044,29 @@ export default function LandingPage() {
                     </label>
                     <Textarea
                       rows={4}
+                      name="requirements"
+                      value={formData.requirements}
+                      onChange={handleInputChange}
                       className="border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 rounded-xl sm:rounded-2xl text-base sm:text-lg resize-none"
                       placeholder="Any specific areas you'd like to focus on during the visit..."
                     />
                   </div>
-                  <Button className="w-full h-14 sm:h-16 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white text-base sm:text-lg font-semibold rounded-xl sm:rounded-2xl shadow-xl">
-                    <Calendar className="h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3" />
-                    Schedule My Private Tour
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full h-14 sm:h-16 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white text-base sm:text-lg font-semibold rounded-xl sm:rounded-2xl shadow-xl disabled:opacity-50"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Calendar className="h-5 w-5 sm:h-6 sm:w-6 mr-2 sm:mr-3" />
+                        Schedule My Private Tour
+                      </>
+                    )}
                   </Button>
                 </form>
               </CardContent>
@@ -1025,7 +1106,6 @@ export default function LandingPage() {
                 ))}
               </div>
             </div>
-
             <div>
               <h4 className="font-bold text-lg sm:text-xl mb-6 sm:mb-8 tracking-tight">Quick Links</h4>
               <div className="space-y-3 sm:space-y-4">
@@ -1040,7 +1120,6 @@ export default function LandingPage() {
                 ))}
               </div>
             </div>
-
             <div>
               <h4 className="font-bold text-lg sm:text-xl mb-6 sm:mb-8 tracking-tight">Contact Info</h4>
               <div className="space-y-3 sm:space-y-4 text-slate-300 text-sm sm:text-base">
@@ -1050,7 +1129,6 @@ export default function LandingPage() {
                 <div className="font-medium">info@nyrasunterra.com</div>
               </div>
             </div>
-
             <div>
               <h4 className="font-bold text-lg sm:text-xl mb-6 sm:mb-8 tracking-tight">Legal & Compliance</h4>
               <div className="space-y-3 sm:space-y-4">
@@ -1066,7 +1144,6 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-
           <div className="border-t border-slate-700 pt-8 sm:pt-12 text-center">
             <div className="mb-4 sm:mb-6">
               <p className="text-slate-300 mb-2 font-medium text-sm sm:text-base">
