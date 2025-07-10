@@ -228,7 +228,7 @@ export default function LandingPage() {
             <div className="lg:col-span-5 mt-8 lg:mt-0">
               <div className="relative">
                 <div className="aspect-[4/5] bg-gradient-to-br from-slate-100 via-white to-slate-100 rounded-2xl sm:rounded-3xl lg:rounded-[3rem] overflow-hidden shadow-2xl border border-white/50">
-                  <img src="/banner.jpeg" alt="Luxury Villa" className="w-full h-full object-cover" />
+                  <img src="/building1.webp" alt="Luxury Villa" className="w-full h-full object-cover" />
                 </div>
                 {/* Premium Floating Cards */}
                 <div className="absolute left-2 sm:-left-4 lg:-left-8 top-1/4 bg-white/95 backdrop-blur-xl rounded-xl sm:rounded-2xl lg:rounded-3xl p-3 sm:p-4 lg:p-6 shadow-2xl border border-white/50">
@@ -819,7 +819,7 @@ export default function LandingPage() {
             <div className="relative">
               <div className="aspect-square bg-gradient-to-br from-emerald-100 via-white to-green-100 rounded-2xl sm:rounded-3xl lg:rounded-[3rem] overflow-hidden shadow-2xl border border-white/50">
                 <img
-                  src="/building2.webp?height=600&width=600"
+                  src="/building1.webp?height=600&width=600"
                   alt="Location Highlights"
                   className="w-full h-full object-cover"
                 />
