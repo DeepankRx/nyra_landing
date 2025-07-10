@@ -18,12 +18,12 @@ export default function GallerySection() {
 
   const galleryImages = {
     exterior: [
-      { src: "/building.webp", title: "Villa Exterior", type: "image" },
+      // { src: "/building.webp", title: "Villa Exterior", type: "image" },
       { src: "/building2.webp", title: "Entrance View", type: "image" },
       { src: "/building4.webp", title: "Garden View", type: "image" },
       { src: "/building5.webp", title: "Terrace Design", type: "image" },
       { src: "/building6.webp", title: "Architecture", type: "image" },
-      { src: "/banner.jpeg", title: "Villa Walkthrough", type: "video" },
+      // { src: "/banner.jpeg", title: "Villa Walkthrough", type: "video" },
     ],
     interior: [
       { src: "/placeholder.svg?height=400&width=600", title: "Living Room", type: "image" },

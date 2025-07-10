@@ -466,15 +466,7 @@ export default function LandingPage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
             {[
-              {
-                icon: Home,
-                title: "Grand Teak Entrance",
-                description:
-                  "Solid teak wood double doors with premium hardware create an unforgettable first impression that speaks of timeless elegance.",
-                image: "/building.webp?height=400&width=500",
-                gradient: "from-amber-500 to-orange-600",
-                bgGradient: "from-amber-50 to-orange-50",
-              },
+        
               {
                 icon: Award,
                 title: "Italian Marble Flooring",
